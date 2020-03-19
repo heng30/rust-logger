@@ -128,7 +128,7 @@ pub fn level_flag(level: u8) -> char {
 }
 
 /// 检查记录日志的目录和文件是否存在，权限，大小等，并创建文件， 为记录日志做准备; **该接口不应被用户调用**
-pub fn before_log(lger: &Logger) -> io::Result<bool> {
+pub fn before_log(lger: &Logger) -> io::Result<()> {
     let filepath = &lger.filepath;
     let path = Path::new(filepath);
     let dir = path.parent();
@@ -140,8 +140,10 @@ pub fn before_log(lger: &Logger) -> io::Result<bool> {
         }
 
         None => {
-            println!("filepath: {} is invalid", filepath);
-            return Ok(false);
+            return Err(io::Error::new(
+                io::ErrorKind::Other,
+                format!("filepath: {} is invalid", filepath),
+            ));
         }
     }
 
@@ -156,7 +158,7 @@ pub fn before_log(lger: &Logger) -> io::Result<bool> {
         }
     }
 
-    return Ok(true);
+     Ok(())
 }
 
 /// 打印日志，内部调用; **该接口不应被用户调用**
@@ -189,7 +191,7 @@ macro_rules! log {
             } else {
                 let filepath = &lger.filepath;
                 match log::before_log(&lger) {
-                    Ok(r) if r => {
+                    Ok(_)  => {
                         let mut file = OpenOptions::new().write(true).append(true).open(filepath);
 
                         match file {
@@ -210,7 +212,6 @@ macro_rules! log {
                     Err(e) => {
                         println!("before_log set filepath: {}, error: {:?}", filepath, e);
                     }
-                    _ => {}
                 }
             }
         }
