@@ -49,12 +49,12 @@ pub const A_LEVEL: u8 = 63u8;
 ///
 /// filepath: 文件路径，不设置则为打印到标准输出
 /// level: 日志级别，采用或方式设置 'T_LEVEL | D_LEVEL' 表示设置trace和debug级别
-/// rotate_size: 日志文件重写大小，单位：byte
+/// size: 日志文件重写大小，单位：byte
 #[derive(Debug)]
 pub struct Logger {
     pub filepath: String,
     level: u8,
-    rotate_size: u64,
+    size: u64,
 }
 
 lazy_static! {
@@ -62,7 +62,7 @@ lazy_static! {
     pub static ref LOGGER: Arc<Mutex<Logger>> = Arc::new(Mutex::new(Logger {
         filepath: "".to_string(),
         level: A_LEVEL,
-        rotate_size: 10 * 1024 * 1024,
+        size: 10 * 1024 * 1024,
     }));
 }
 
@@ -94,11 +94,11 @@ pub fn set_level(level: u8) {
 }
 
 /// 设置日志文件重写大小
-pub fn set_rotate_size(rotate_size: u64) {
-    LOGGER.lock().expect("logger get lock failed").rotate_size = rotate_size;
+pub fn set_size(size: u64) {
+    LOGGER.lock().expect("logger get lock failed").size = size;
 }
 
-/// 打印filepath，level，rotate_size 信息
+/// 打印filepath，level，size 信息
 pub fn dump() {
     let lger = &LOGGER.lock().expect("logger get lock failed");
     println!("{:#?}", lger);
@@ -150,7 +150,7 @@ pub fn before_log(lger: &Logger) -> io::Result<()> {
     if !path.is_file() {
         fs::File::create(filepath)?;
     } else {
-        if path.metadata()?.len() > lger.rotate_size {
+        if path.metadata()?.len() > lger.size {
             OpenOptions::new()
                 .write(true)
                 .truncate(true)

@@ -11,8 +11,8 @@ struct A {
 
 fn main() {
     log::set_level(log::A_LEVEL);
-    log::set_rotate_size(1024);
-    // log::set_filepath("/tmp/rs.dat".to_owned());
+    log::set_size(1024);
+    log::set_filepath("/tmp/rs.dat".to_owned());
     log::dump();
     let count = 1024;
 
