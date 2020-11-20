@@ -172,8 +172,8 @@ pub fn before_log(lger: &Logger) -> io::Result<()> {
 #[macro_export]
 macro_rules! log {
     ($lflag: expr, $($arg:tt)*) => {{
-        use chrono::{format, offset::Local};
-        use crate::log;
+        use $crate::chrono::{format, offset::Local};
+        use $crate::log;
         use std::fs::OpenOptions;
         use std::io::Write;
 
