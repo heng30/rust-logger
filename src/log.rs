@@ -27,6 +27,7 @@ use std::fs::OpenOptions;
 use std::io;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
+use lazy_static::lazy_static;
 
 /// 日志级别: trace
 pub const T_LEVEL: u8 = 1u8;
@@ -67,6 +68,7 @@ lazy_static! {
 }
 
 /// 获取调用程序名
+#[doc(hidden)]
 #[macro_export]
 macro_rules! function_name {
     () => {{
@@ -104,17 +106,20 @@ pub fn dump() {
     println!("{:#?}", lger);
 }
 
-/// 是否打印日志; **该接口不应被用户调用**
+// 是否打印日志; **该接口不应被用户调用**
+#[doc(hidden)]
 pub fn can_log(lger: &Logger, level: u8) -> bool {
     lger.level & level != 0
 }
 
-/// 是否打印到标准输出; **该接口不应被用户调用**
+// 是否打印到标准输出; 该接口不应被用户调用
+#[doc(hidden)]
 pub fn is_stdout(lger: &Logger) -> bool {
     lger.filepath.len() == 0
 }
 
-/// 获取日志级别对应的字符; **该接口不应被用户调用**
+// 获取日志级别对应的字符; 该接口不应被用户调用
+#[doc(hidden)]
 pub fn level_flag(level: u8) -> char {
     match level {
         T_LEVEL => 'T',
@@ -127,7 +132,8 @@ pub fn level_flag(level: u8) -> char {
     }
 }
 
-/// 检查记录日志的目录和文件是否存在，权限，大小等，并创建文件， 为记录日志做准备; **该接口不应被用户调用**
+// 检查记录日志的目录和文件是否存在，权限，大小等，并创建文件， 为记录日志做准备; 该接口不应被用户调用
+#[doc(hidden)]
 pub fn before_log(lger: &Logger) -> io::Result<()> {
     let filepath = &lger.filepath;
     let path = Path::new(filepath);
@@ -161,12 +167,13 @@ pub fn before_log(lger: &Logger) -> io::Result<()> {
      Ok(())
 }
 
-/// 打印日志，内部调用; **该接口不应被用户调用**
+// 打印日志，内部调用; 该接口不应被用户调用
+#[doc(hidden)]
 #[macro_export]
 macro_rules! log {
     ($lflag: expr, $($arg:tt)*) => {{
         use chrono::{format, offset::Local};
-        use logger::log;
+        use crate::log;
         use std::fs::OpenOptions;
         use std::io::Write;
 
@@ -222,7 +229,7 @@ macro_rules! log {
 #[macro_export]
 macro_rules! traceln {
     ($($arg:tt)*) => {{
-        log!(logger::log::T_LEVEL, $($arg)*);
+        log!($crate::log::T_LEVEL, $($arg)*);
     }};
 }
 
@@ -230,7 +237,7 @@ macro_rules! traceln {
 #[macro_export]
 macro_rules! debugln {
     ($($arg:tt)*) => {{
-        log!(logger::log::D_LEVEL, $($arg)*);
+        log!($crate::log::D_LEVEL, $($arg)*);
     }};
 }
 
@@ -238,7 +245,7 @@ macro_rules! debugln {
 #[macro_export]
 macro_rules! infoln {
     ($($arg:tt)*) => {{
-        log!(logger::log::I_LEVEL, $($arg)*);
+        log!($crate::log::I_LEVEL, $($arg)*);
     }};
 }
 
@@ -246,7 +253,7 @@ macro_rules! infoln {
 #[macro_export]
 macro_rules! warnln {
     ($($arg:tt)*) => {{
-        log!(logger::log::W_LEVEL, $($arg)*);
+        log!($crate::log::W_LEVEL, $($arg)*);
     }};
 }
 
@@ -254,7 +261,7 @@ macro_rules! warnln {
 #[macro_export]
 macro_rules! errorln {
     ($($arg:tt)*) => {{
-        log!(logger::log::E_LEVEL, $($arg)*);
+        log!($crate::log::E_LEVEL, $($arg)*);
     }};
 }
 
@@ -262,6 +269,6 @@ macro_rules! errorln {
 #[macro_export]
 macro_rules! fatalln {
     ($($arg:tt)*) => {{
-        log!(logger::log::F_LEVEL, $($arg)*);
+        log!($crate::log::F_LEVEL, $($arg)*);
     }};
 }

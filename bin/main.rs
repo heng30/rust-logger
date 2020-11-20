@@ -1,8 +1,8 @@
 #[macro_use]
-extern crate logger;
+extern crate logger as mylogger;
 
 use std::thread;
-use logger::log;
+use mylogger::log;
 
 #[derive(Debug)]
 struct A {
@@ -12,7 +12,7 @@ struct A {
 fn main() {
     log::set_level(log::A_LEVEL);
     log::set_size(1024);
-    log::set_filepath("/tmp/rs.dat".to_owned());
+    // log::set_filepath("/tmp/rs.dat".to_owned());
     log::dump();
     let count = 1024;
 
